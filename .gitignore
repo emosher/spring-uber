@@ -1,0 +1,83 @@
+# Gradle build directory
+/build/
+/.gradle/
+
+# IntelliJ IDEA files
+/.idea/
+/*.iml
+/out/
+
+# Eclipse files
+/.classpath
+/.project
+/.settings/
+
+# VS Code files
+/.vscode/
+
+# MacOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# Log files
+/logs/
+/*.log
+
+# Temporary files
+/tmp/
+/*.swp
+
+# Compiled class files
+/**/*.class
+
+# JAR, WAR, and other build artifacts
+/*.jar
+/*.war
+/*.ear
+
+# Spring Boot dev tools restart directory
+/.restart/
+/.target/
+
+# Dependency directories
+/lib/
+/bin/
+
+# Environment and secrets
+.env
+*.env
+*.key
+*.pem
+*.p12
+*.crt
+*.cer
+*.der
+*.jks
+
+# Generated files
+/mvnw
+/mvnw.cmd
+/target/
+
+# Node modules (if frontend is included)
+node_modules/
+
+# Coverage reports
+/coverage/
+*.lcov
+/.nyc_output/
+
+# IDE-specific files
+/.idea/
+/*.iml
+
+# Gradle Wrapper
+/gradle/wrapper/gradle-wrapper.jar
+
+# Ignore any specific sensitive configuration
+application.properties
+application.yml
+application-dev.properties
+application-prod.properties
