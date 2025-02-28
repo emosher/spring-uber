@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Messages</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h1>Messages</h1>
+        <div class="messages">
+            <div class="message-card" th:each="message : ${messages}">
+                <p th:text="${message.message}"></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
