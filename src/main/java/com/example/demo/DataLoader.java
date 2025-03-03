@@ -12,23 +12,18 @@ import java.io.IOException;
 
 @Configuration
 public class DataLoader {
-
     @Bean
-    CommandLineRunner initDatabase(MessageRepository repository) {
+    CommandLineRunner initDatabase(UberPickupRepository repository) {
         return args -> {
             try (CSVReader reader = new CSVReader(new FileReader(new ClassPathResource("data.csv").getFile()))) {
-                // Skip header
-                reader.readNext();
-                
+                reader.readNext(); // Skip header
                 String[] line;
                 while ((line = reader.readNext()) != null) {
-                    Message message = new Message();
-                    message.setHour(Integer.parseInt(line[0]));
-                    message.setCount(Integer.parseInt(line[1]));
-                    repository.save(message);
+                    UberPickup pickup = new UberPickup();
+                    pickup.setHour(Integer.parseInt(line[0]));
+                    pickup.setCount(Integer.parseInt(line[1]));
+                    repository.save(pickup);
                 }
-            } catch (IOException | CsvValidationException e) {
-                throw new RuntimeException("Error loading CSV data", e);
             }
         };
     }

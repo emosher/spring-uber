@@ -4,7 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
 @Entity
-public class Message {
+public class UberPickup {
     @Id
     private Integer hour;
     private Integer count;

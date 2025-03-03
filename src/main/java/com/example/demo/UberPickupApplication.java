@@ -9,25 +9,25 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
 @SpringBootApplication
-public class HelloWorldApplication {
+public class UberPickupApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(HelloWorldApplication.class, args);
+        SpringApplication.run(UberPickupApplication.class, args);
     }
 }
 
-@Controller  // Change from @RestController to @Controller
-class HelloWorldController {
-    private final MessageRepository repository;
+@Controller
+class UberPickupController {
+    private final UberPickupRepository repository;
 
-    HelloWorldController(MessageRepository repository) {
+    UberPickupController(UberPickupRepository repository) {
         this.repository = repository;
     }
 
     @GetMapping("/")
-    public String getMessages(Model model) {
-        List<Message> messages = repository.findAll();
-        model.addAttribute("messages", messages);
+    public String getPickups(Model model) {
+        List<UberPickup> pickups = repository.findAll();
+        model.addAttribute("messages", pickups); // Keep "messages" for now to avoid template changes
         return "index";
     }
 }
