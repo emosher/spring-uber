@@ -23,8 +23,8 @@ public class DataLoader {
                 String[] line;
                 while ((line = reader.readNext()) != null) {
                     Message message = new Message();
-                    message.setId(Long.parseLong(line[0]));
-                    message.setMessage(line[1]);
+                    message.setHour(Integer.parseInt(line[0]));
+                    message.setCount(Integer.parseInt(line[1]));
                     repository.save(message);
                 }
             } catch (IOException | CsvValidationException e) {

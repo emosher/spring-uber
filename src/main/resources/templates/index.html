@@ -1,17 +1,55 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Messages</title>
+    <title>Spring Uber</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
     <div class="container">
-        <h1>Messages</h1>
-        <div class="messages">
-            <div class="message-card" th:each="message : ${messages}">
-                <p th:text="${message.message}"></p>
-            </div>
+        <h1 class="mt-5">Uber pickups in NYC, Sept 2014</h1>
+        <h3 class="mt-4">Number of pickups by hour</h3>
+        <div class="chart-container">
+            <canvas id="hourlyChart"></canvas>
         </div>
     </div>
+
+    <script th:inline="javascript">
+        const data = /*[[${messages}]]*/ [];
+        const hours = data.map(item => item.hour);
+        const counts = data.map(item => item.count);
+
+        new Chart(document.getElementById('hourlyChart'), {
+            type: 'bar',
+            data: {
+                labels: hours,
+                datasets: [{
+                    label: 'Count per Hour',
+                    data: counts,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Count'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Hour of Day'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
