@@ -1,4 +1,4 @@
-package com.example.demo;
+package dev.emosher.springuber.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

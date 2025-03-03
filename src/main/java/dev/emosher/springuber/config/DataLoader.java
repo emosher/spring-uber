@@ -1,5 +1,7 @@
-package com.example.demo;
+package dev.emosher.springuber.config;
 
+import dev.emosher.springuber.model.UberPickup;
+import dev.emosher.springuber.repository.UberPickupRepository;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.springframework.boot.CommandLineRunner;
