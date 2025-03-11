@@ -9,6 +9,10 @@ Copy the example application properties via the command below and edit for your 
 ```bash
 # Change any config via the file as needed
 cp application.properties.example src/main/resources/application.properties
+# Make sure you have gradle installed with this or similar
+brew install gradle
+# You might need to generate a gradle wrapper
+gradle wrapper
 # Run the app
 ./gradlew bootRun
 ```
