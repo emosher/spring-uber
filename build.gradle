@@ -16,6 +16,15 @@ repositories {
 	mavenCentral()
 }
 
+bootJar {
+  	mainClass.set('dev.emosher.springuber.SpringUberApplication')
+}
+
+// Ensure Java 17 is used
+tasks.withType(JavaCompile) {
+    options.release = 17
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
