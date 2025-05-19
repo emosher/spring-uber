@@ -7,7 +7,7 @@ An example Spring project visualizing Uber data from NYC.  Full data set is [her
 To run Postgres locally, you can do something like this.
 
 ```bash
-docker run --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres:16
+docker run --name spring-uber-postgres -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres:16
 ```
 
 Copy the example application properties via the command below and edit for your Postgres config.  Then run the app.

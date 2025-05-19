@@ -81,3 +81,6 @@ application.properties
 application.yml
 application-dev.properties
 application-prod.properties
+
+# Spring Application Advisor
+.advisor

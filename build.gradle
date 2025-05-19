@@ -1,7 +1,7 @@
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.3'
-	id 'io.spring.dependency-management' version '1.1.7'
+	id 'io.spring.dependency-management' version '1.1.4'
 }
 
 group = 'dev.emosher'
@@ -13,6 +13,7 @@ java {
 }
 
 repositories {
+	gradlePluginPortal()
 	mavenCentral()
 }
 
