@@ -1,0 +1,26 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8090:8090"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/springuber
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=springuber
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+
+  db:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=springuber
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=springuber
+    volumes:
+      - springuber_data:/var/lib/postgresql/data
+
+volumes:
+  springuber_data:
