@@ -8,8 +8,8 @@ group = 'dev.emosher'
 version = '0.0.1-SNAPSHOT'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
@@ -21,9 +21,9 @@ bootJar {
   	mainClass.set('dev.emosher.springuber.SpringUberApplication')
 }
 
-// Ensure Java 17 is used
+// Ensure Java 21 is used
 tasks.withType(JavaCompile) {
-    options.release = 17
+    options.release = 21
 }
 
 dependencies {
