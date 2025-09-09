@@ -12,7 +12,7 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=create
 
   db:
-    image: us-east1-docker.pkg.dev/vmw-app-catalog/hosted-registry-e4c6ba6fd76/containers/photon-5/postgresql@sha256:f2c77bb2cafb26e1a2953d7bfe2cf42d18298c623d107ca161acf4c0ea396b79
+    image: us-east1-docker.pkg.dev/vmw-app-catalog/hosted-registry-e4c6ba6fd76/containers/photon-5/postgresql:16
     ports:
       - "5435:5432"
     environment:
