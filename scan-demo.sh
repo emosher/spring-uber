@@ -110,23 +110,6 @@ printf "%-25s-+-%-10s-+-%-10s-+-%-12s\n" "-------------------------" "----------
 print_row "TOTAL" "$dhb_total" "$bsi_total" "$total_diff"
 
 echo
-echo "=== KEY FINDINGS ==="
-
-# Calculate high-risk vulnerabilities (Critical + High)
-dhb_high_risk=$((dhb_crit + dhb_high))
-bsi_high_risk=$((bsi_crit + bsi_high))
-high_risk_reduction=$((dhb_high_risk - bsi_high_risk))
-
-echo "• High-risk vulnerabilities (Critical + High):"
-echo "  - DockerHub: $dhb_high_risk"
-echo "  - Bitnami: $bsi_high_risk"
-if [ $high_risk_reduction -ge 0 ]; then
-    echo -e "  - ${GREEN}Reduction: $high_risk_reduction vulnerabilities${NC}"
-else
-    echo -e "  - ${RED}Increase: $((-high_risk_reduction)) vulnerabilities${NC}"
-fi
-
-echo
 if [ $total_diff -gt 0 ]; then
     echo -e "${GREEN}✓ Bitnami Secure Images reduced total vulnerabilities by $total_diff${NC}"
 elif [ $total_diff -lt 0 ]; then
