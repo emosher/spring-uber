@@ -88,3 +88,4 @@ application-prod.properties
 # Docker
 .docker/
 docker-compose.override.yml
+.env

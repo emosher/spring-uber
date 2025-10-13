@@ -5,5 +5,8 @@ COPY . .
 RUN ./gradlew bootJar
 
 FROM us-east1-docker.pkg.dev/vmw-app-catalog/hosted-registry-e4c6ba6fd76/containers/photon-5/java-min:21
+WORKDIR /app
+# Copy the JAR from the builder stage
+COPY --from=builder /app/build/libs/*.jar app.jar
 EXPOSE 8090
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,0 +1,33 @@
+name: spring-uber-dhb
+
+services:
+  app-dhb:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dhb
+    image: spring-uber-app-dhb
+    container_name: spring-uber-app-dhb  
+    ports:
+      - "8090:8090"
+    depends_on:
+      - db-dhb
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-dhb:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=${SPRING_JPA_HIBERNATE_DDL_AUTO}
+
+  db-dhb:
+    image: us-east1-docker.pkg.dev/vmw-app-catalog/hosted-registry-e4c6ba6fd76/containers/photon-5/postgresql:16
+    container_name: postgres-dhb
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - springuber_data_dhb:/var/lib/postgresql/data
+
+volumes:
+  springuber_data_dhb:
