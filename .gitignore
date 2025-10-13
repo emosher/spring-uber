@@ -84,3 +84,7 @@ application-prod.properties
 
 # Spring Application Advisor
 .advisor
+
+# Docker
+.docker/
+docker-compose.override.yml
