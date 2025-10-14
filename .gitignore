@@ -89,3 +89,5 @@ application-prod.properties
 .docker/
 docker-compose.override.yml
 .env
+vendir/
+vendir.lock.yml

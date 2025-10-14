@@ -18,7 +18,7 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=${SPRING_JPA_HIBERNATE_DDL_AUTO}
 
   db-dhb:
-    image: us-east1-docker.pkg.dev/vmw-app-catalog/hosted-registry-e4c6ba6fd76/containers/photon-5/postgresql:16
+    image: postgres:16
     container_name: postgres-dhb
     ports:
       - "5435:5432"
