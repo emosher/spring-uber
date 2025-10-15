@@ -47,7 +47,7 @@ cp application.properties.example src/main/resources/application.properties
 
 Create your service for Postgres with something like
 ```bash
-cf create-service posgresql [plan-name] spring-uber-db
+cf create-service postgresql [plan-name] spring-uber-db
 ```
 Push the app to the platform with
 ```bash
