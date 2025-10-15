@@ -42,3 +42,14 @@ cp application.properties.example src/main/resources/application.properties
 # Run the demo 
 ./demo.sh
 ```
+
+### Deploying to Cloud Foundry
+
+Create your service for Postgres with something like
+```bash
+cf create-service posgresql [plan-name] spring-uber-db
+```
+Push the app to the platform with
+```bash
+cf push -f manifest.yml
+```
