@@ -14,6 +14,8 @@ check_dependencies() {
     done
 }
 
+
+
 vendir sync 
 . vendir/demo-magic/demo-magic.sh -n
 
@@ -35,6 +37,12 @@ DHB_APP_SCAN="/tmp/dhb-app-scan.json"
 DHB_DB_SCAN="/tmp/dhb-db-scan.json"
 BSI_APP_SCAN="/tmp/bsi-app-scan.json"
 BSI_DB_SCAN="/tmp/bsi-db-scan.json"
+
+cleanup() {
+    docker compose -f docker-compose.dhb.yml down -v
+    docker compose -f docker-compose.bsi.yml down -v
+    rm -f $DHB_APP_SCAN $DHB_DB_SCAN $BSI_APP_SCAN $BSI_DB_SCAN
+}
 
 ########################
 # Helper Functions
@@ -127,7 +135,7 @@ print_results_table() {
     fi
     
     printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${diff_color} %6s ${PURPLE}║${NC}\n" \
-        "DIFFERENCE (DHB-BSI)" "$diff_crit" "$diff_high" "$diff_med" "$diff_low" "$difference"
+        "DIFFERENCE (Dockerhub-Bitnami)" "$diff_crit" "$diff_high" "$diff_med" "$diff_low" "$difference"
     echo -e "${PURPLE}╚═══════════════════════╩════════════╩════════════╩════════════╩════════════╩════════╝${NC}"
     
     echo ""
@@ -136,12 +144,12 @@ print_results_table() {
     echo -e "${PURPLE}╚════════════════════════════════════════════════════════════════════════════════════╝${NC}"
     
     if [ $difference -gt 0 ]; then
-        echo -e "${GREEN}✓ BSI images have ${difference} FEWER vulnerabilities than DockerHub images!${NC}"
+        echo -e "${GREEN}✓ Bitnami images have ${difference} FEWER vulnerabilities than DockerHub images!${NC}"
         echo -e "${GREEN}  ${diff_symbol} Critical: ${diff_crit} fewer${NC}"
         echo -e "${GREEN}  ${diff_symbol} High: ${diff_high} fewer${NC}"
         echo -e "${GREEN}  ${diff_symbol} Medium: ${diff_med} fewer${NC}"
     elif [ $difference -lt 0 ]; then
-        echo -e "${RED}✗ BSI images have ${difference#-} MORE vulnerabilities than DockerHub images!${NC}"
+        echo -e "${RED}✗ Bitnami images have ${difference#-} MORE vulnerabilities than DockerHub images!${NC}"
     else
         echo -e "${YELLOW}= Both stacks have the same number of vulnerabilities${NC}"
     fi
@@ -154,40 +162,39 @@ print_results_table() {
 ########################
 
 clear
-print_header "Spring Uber: Comparing DockerHub vs BSI Images"
+cleanup
+
+clear
+print_header "Spring Uber: Comparing DockerHub vs Bitnami Images"
 
 echo -e "${CYAN}This demo will:${NC}"
-echo "  1. Build both application stacks (DockerHub and BSI)"
+echo "  1. Build both application stacks (DockerHub and Bitnami)"
 echo "  2. Scan all images for vulnerabilities using Grype"
 echo "  3. Compare the results"
 echo ""
 
 wait
 
-print_header "Step 1: Cleaning Up Previous Builds"
-pei "docker compose -f docker-compose.dhb.yml down -v"
-pei "docker compose -f docker-compose.bsi.yml down -v"
-
-print_header "Step 2: Build DockerHub Stack"
+print_header "Step 1: Build DockerHub Stack"
 pei "docker compose -f docker-compose.dhb.yml build"
 pei "docker compose -f docker-compose.dhb.yml up -d"
 
-print_header "Step 3: Build BSI Stack"
+print_header "Step 2: Build Bitnami Stack"
 pei "docker compose -f docker-compose.bsi.yml build"
 pei "docker compose -f docker-compose.bsi.yml up -d"
 
-print_header "Step 4: Verify Both Stacks Are Running"
+print_header "Step 3: Verify Both Stacks Are Running"
 pei "docker compose ls"
 
-print_header "Step 5: Scan DockerHub Stack Images"
+print_header "Step 4: Scan DockerHub Stack Images"
 pei "grype spring-uber-app-dhb:latest -o json > $DHB_APP_SCAN"
 pei "grype postgres:16 -o json > $DHB_DB_SCAN"
 
-print_header "Step 6: Scan BSI Stack Images"
+print_header "Step 5: Scan Bitnami Stack Images"
 pei "grype spring-uber-app-bsi:latest -o json > $BSI_APP_SCAN"
 pei "grype us-east1-docker.pkg.dev/vmw-app-catalog/hosted-registry-e4c6ba6fd76/containers/photon-5/postgresql:16 -o json > $BSI_DB_SCAN"
 
-print_header "Step 7: Analyze Results"
+print_header "Step 6: Analyze Results"
 
 # Print the results table
 print_results_table
@@ -195,7 +202,7 @@ print_results_table
 print_header "Demo Complete!"
 echo -e "${GREEN}Both stacks are running and ready for testing:${NC}"
 echo -e "  ${CYAN}DockerHub App:${NC} http://localhost:8090"
-echo -e "  ${CYAN}BSI App:${NC}       http://localhost:8091"
+echo -e "  ${CYAN}Bitnami App:${NC}       http://localhost:8091"
 echo ""
 echo -e "${YELLOW}To stop the stacks:${NC}"
 echo "  docker compose -f docker-compose.dhb.yml down"
@@ -203,4 +210,4 @@ echo "  docker compose -f docker-compose.bsi.yml down"
 echo ""
 
 # Cleanup temp files
-rm -f $DHB_APP_SCAN $DHB_DB_SCAN $BSI_APP_SCAN $BSI_DB_SCAN
+#rm -f $DHB_APP_SCAN $DHB_DB_SCAN $BSI_APP_SCAN $BSI_DB_SCAN
