@@ -146,6 +146,7 @@ print_results_table() {
         echo -e "${GREEN}  ${diff_symbol} Critical: ${diff_crit} fewer${NC}"
         echo -e "${GREEN}  ${diff_symbol} High: ${diff_high} fewer${NC}"
         echo -e "${GREEN}  ${diff_symbol} Medium: ${diff_med} fewer${NC}"
+        echo -e "${GREEN}  ${diff_symbol} Low: ${diff_low} fewer${NC}"
     elif [ $difference -lt 0 ]; then
         echo -e "${RED}✗ Bitnami images have ${difference#-} MORE vulnerabilities than DockerHub images!${NC}"
     else
@@ -199,12 +200,12 @@ print_results_table
 print_header "Demo Complete!"
 echo -e "${GREEN}Both stacks are running and ready for testing:${NC}"
 echo -e "  ${CYAN}DockerHub App:${NC} http://localhost:8090"
-echo -e "  ${CYAN}Bitnami App:${NC}       http://localhost:8091"
+echo -e "  ${CYAN}Bitnami App:${NC} http://localhost:8091"
 echo ""
-echo -e "${YELLOW}To stop the stacks:${NC}"
-echo "  docker compose -f docker-compose.dhb.yml down"
-echo "  docker compose -f docker-compose.bsi.yml down"
-echo ""
+# echo -e "${YELLOW}To stop the stacks:${NC}"
+# echo "  docker compose -f docker-compose.dhb.yml down"
+# echo "  docker compose -f docker-compose.bsi.yml down"
+# echo ""
 
 # Cleanup temp files
-#rm -f $DHB_APP_SCAN $DHB_DB_SCAN $BSI_APP_SCAN $BSI_DB_SCAN
+# rm -f $DHB_APP_SCAN $DHB_DB_SCAN $BSI_APP_SCAN $BSI_DB_SCAN
