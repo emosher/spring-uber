@@ -25,7 +25,7 @@ gradle wrapper
 
 ### Running the Bitnami Secure Images Demo
 
-To run the BSI version of this app, you first need a BSI account and a registry set up.  Mine is in the `Dockerfile.bsi` and `docker-compose.bsi.yml`.  You will want to change those values and ensure you have authenticated access to your registry.  This app uses the Java 21, Java Minimal 21, and Postgres 16 containers.  Make sure you have those 3 images before running the BSI version of the app.
+To run the BSI version of this app, you first need a BSI account and a registry set up.  Mine is in the `Dockerfile.bsi` and `docker-compose.bsi.yml`.  You will want to change those values and ensure you have authenticated access to your registry in the `FROM` statment in the Dockerfile and the `image` tag in the Docker Compose.  This app uses the Java 21, Java Minimal 21, and Postgres 16 containers.  Make sure you have those 3 images before running the BSI version of the app.
 
 The demo script also requires the following tools, and will alert you if they are not installed:
  - Vendir
