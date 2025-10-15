@@ -1,5 +1,5 @@
 # BSI version of the app
-FROM us-east1-docker.pkg.dev/vmw-app-catalog/hosted-registry-e4c6ba6fd76/containers/photon-5/java:21 as builder
+FROM us-east1-docker.pkg.dev/vmw-app-catalog/hosted-registry-e4c6ba6fd76/containers/photon-5/java:21 AS builder
 WORKDIR /app
 COPY . .
 RUN ./gradlew bootJar
