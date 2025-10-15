@@ -3,19 +3,6 @@
 ########################
 # Demo Magic Setup
 ########################
-
-check_dependencies() {
-    local tools=("vendir" "grype" "git")
-    for tool in "${tools[@]}"; do
-        if ! command -v "$tool" &> /dev/null; then
-            echo "$tool not found. Please install $tool first."
-            exit 1
-        fi
-    done
-}
-
-
-
 vendir sync 
 . vendir/demo-magic/demo-magic.sh -n
 
@@ -47,6 +34,17 @@ cleanup() {
 ########################
 # Helper Functions
 ########################
+
+# Check if required tools are installed
+check_dependencies() {
+    local tools=("vendir" "grype" "jq" "docker" "docker-compose")
+    for tool in "${tools[@]}"; do
+        if ! command -v "$tool" &> /dev/null; then
+            echo "$tool not found. Please install $tool first."
+            exit 1
+        fi
+    done
+}
 
 # Extract vulnerability counts by severity from Grype JSON output
 extract_vuln_counts() {
@@ -110,7 +108,7 @@ print_results_table() {
     echo -e "${PURPLE}║${NC} Image                 ${PURPLE}║${NC} Critical   ${PURPLE}║${NC} High       ${PURPLE}║${NC} Medium     ${PURPLE}║${NC} Low        ${PURPLE}║${NC} Total  ${PURPLE}║${NC}"
     echo -e "${PURPLE}╠═══════════════════════╬════════════╬════════════╬════════════╬════════════╬════════╣${NC}"
     printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${NC} %6s ${PURPLE}║${NC}\n" \
-        "Dockerhub App" "$dhb_app_crit" "$dhb_app_high" "$dhb_app_med" "$dhb_app_low" "$dhb_app_total"
+        "Dockerhub (DHB) App" "$dhb_app_crit" "$dhb_app_high" "$dhb_app_med" "$dhb_app_low" "$dhb_app_total"
     printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${NC} %6s ${PURPLE}║${NC}\n" \
         "Dockerhub Database" "$dhb_db_crit" "$dhb_db_high" "$dhb_db_med" "$dhb_db_low" "$dhb_db_total"
     echo -e "${PURPLE}╠═══════════════════════╬════════════╬════════════╬════════════╬════════════╬════════╣${NC}"
@@ -135,7 +133,7 @@ print_results_table() {
     fi
     
     printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${diff_color} %6s ${PURPLE}║${NC}\n" \
-        "DIFFERENCE (Dockerhub-Bitnami)" "$diff_crit" "$diff_high" "$diff_med" "$diff_low" "$difference"
+        "DIFFERENCE (DHB-BSI)" "$diff_crit" "$diff_high" "$diff_med" "$diff_low" "$difference"
     echo -e "${PURPLE}╚═══════════════════════╩════════════╩════════════╩════════════╩════════════╩════════╝${NC}"
     
     echo ""
@@ -158,9 +156,10 @@ print_results_table() {
 }
 
 ########################
-# Demo Script
+# Demo Script Main Workflow
 ########################
 
+check_dependencies
 clear
 cleanup
 
@@ -168,20 +167,18 @@ clear
 print_header "Spring Uber: Comparing DockerHub vs Bitnami Images"
 
 echo -e "${CYAN}This demo will:${NC}"
-echo "  1. Build both application stacks (DockerHub and Bitnami)"
-echo "  2. Scan all images for vulnerabilities using Grype"
+echo "  1. Build the application with both stacks (DockerHub and Bitnami)"
+echo "  2. Scan all images, app and database, for vulnerabilities using Grype"
 echo "  3. Compare the results"
 echo ""
 
 wait
 
 print_header "Step 1: Build DockerHub Stack"
-pei "docker compose -f docker-compose.dhb.yml build"
-pei "docker compose -f docker-compose.dhb.yml up -d"
+pei "docker compose -f docker-compose.dhb.yml up -d --build"
 
 print_header "Step 2: Build Bitnami Stack"
-pei "docker compose -f docker-compose.bsi.yml build"
-pei "docker compose -f docker-compose.bsi.yml up -d"
+pei "docker compose -f docker-compose.bsi.yml up -d --build"
 
 print_header "Step 3: Verify Both Stacks Are Running"
 pei "docker compose ls"
