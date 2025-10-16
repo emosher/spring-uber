@@ -1,6 +1,16 @@
 spring.application.name=springuber
-spring.datasource.url=jdbc:postgresql://localhost:5432/springuber
+
+# Default local development settings (overridden in Docker)
+spring.datasource.url=jdbc:postgresql://localhost:5435/springuber
 spring.datasource.username=postgres
-spring.datasource.password=postgres
+# FIPS compliant password requires 14+ characters
+spring.datasource.password=SuperLong1234!
+
+# JPA/Hibernate settings
 spring.jpa.hibernate.ddl-auto=create
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.generate-ddl=true
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+
+spring.sql.init.mode=always
+spring.datasource.driver-class-name=org.postgresql.Driver
