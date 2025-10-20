@@ -6,6 +6,6 @@ applications:
   path: build/libs/springuber-0.0.1-SNAPSHOT.jar
   buildpack: java_buildpack_offline
   env:
-    JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 17.+ } }'
+    JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 21.+ } }'
   services:
     - spring-uber-db
