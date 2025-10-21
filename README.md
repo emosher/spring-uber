@@ -49,6 +49,10 @@ Create your service for Postgres with something like
 ```bash
 cf create-service postgresql [plan-name] spring-uber-db
 ```
+Build the jar
+```bash
+./gradlew bootJar
+```
 Push the app to the platform with
 ```bash
 cf push -f manifest.yml
