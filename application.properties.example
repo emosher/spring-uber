@@ -1,7 +1,7 @@
 spring.application.name=springuber
 
 # Default local development settings (overridden in Docker)
-spring.datasource.url=jdbc:postgresql://localhost:5435/springuber
+spring.datasource.url=jdbc:postgresql://localhost:5432/springuber
 spring.datasource.username=postgres
 # FIPS compliant password requires 14+ characters
 spring.datasource.password=SuperLong1234!
