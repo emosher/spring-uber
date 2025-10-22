@@ -15,6 +15,8 @@ Copy the example application properties via the command below and edit for your 
 ```bash
 # Change any config via the file as needed
 cp application.properties.example src/main/resources/application.properties
+# Make sure you are on Java 21, or use SDKman to switch
+sdk use java 21.0.2-open
 # Make sure you have gradle installed with this or similar
 brew install gradle
 # You might need to generate a gradle wrapper
@@ -30,8 +32,7 @@ To run the BSI version of this app, you first need a BSI account and a registry 
 The demo script also requires the following tools, and will alert you if they are not installed:
  - Vendir
  - Grype
- - Docker
- - Docker Compose
+ - Docker + Docker Compose
  - jq
 
 ```bash
