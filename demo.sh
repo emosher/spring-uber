@@ -10,6 +10,9 @@ vendir sync
 TYPE_SPEED=20
 NO_WAIT=false
 
+# Convenience variable if using a different registry
+BSI_REGISTRY="us-east1-docker.pkg.dev/vmw-app-catalog/hosted-registry-e4c6ba6fd76"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -18,6 +21,12 @@ BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
+
+# Temp files for SBOM results
+DHB_APP_SBOM="/tmp/dhb-app-sbom.json"
+DHB_DB_SBOM="/tmp/dhb-db-sbom.json"
+BSI_APP_SBOM="/tmp/bsi-app-sbom.json"
+BSI_DB_SBOM="/tmp/bsi-db-sbom.json"
 
 # Temp files for scan results
 DHB_APP_SCAN="/tmp/dhb-app-scan.json"
@@ -28,7 +37,7 @@ BSI_DB_SCAN="/tmp/bsi-db-scan.json"
 cleanup() {
     docker compose -f docker-compose.dhb.yml down -v
     docker compose -f docker-compose.bsi.yml down -v
-    rm -f $DHB_APP_SCAN $DHB_DB_SCAN $BSI_APP_SCAN $BSI_DB_SCAN
+    rm -f $DHB_APP_SBOM $DHB_DB_SBOM $BSI_APP_SBOM $BSI_DB_SBOM $DHB_APP_SCAN $DHB_DB_SCAN $BSI_APP_SCAN $BSI_DB_SCAN 
 }
 
 ########################
@@ -37,7 +46,7 @@ cleanup() {
 
 # Check if required tools are installed
 check_dependencies() {
-    local tools=("vendir" "grype" "jq" "docker" "docker-compose")
+    local tools=("vendir" "grype" "syft" "jq" "docker" "docker-compose")
     for tool in "${tools[@]}"; do
         if ! command -v "$tool" &> /dev/null; then
             echo "$tool not found. Please install $tool first."
@@ -163,36 +172,44 @@ print_results_table() {
 check_dependencies
 clear
 cleanup
-
 clear
-print_header "Spring Uber: Comparing DockerHub vs Bitnami Images"
 
+print_header "Pre-demo step: Build DockerHub Stack"
+pei "docker compose -f docker-compose.dhb.yml up -d --build"
+
+print_header "Pre-demo step: Build Bitnami Stack"
+pei "docker compose -f docker-compose.bsi.yml up -d --build"
+clear
+
+print_header "Spring Uber: Comparing DockerHub vs Bitnami Images"
 echo -e "${CYAN}This demo will:${NC}"
-echo "  1. Build the application with both stacks (DockerHub and Bitnami)"
-echo "  2. Scan all images, app and database, for vulnerabilities using Grype"
+echo "  1. Verify both DockerHub and Bitnami stacks are running"
+echo "  2. Scan all images, app and database, for vulnerabilities using Syft & Grype"
 echo "  3. Compare the results"
 echo ""
 
 wait
 
-print_header "Step 1: Build DockerHub Stack"
-pei "docker compose -f docker-compose.dhb.yml up -d --build"
+print_header "Step 1: Verify Both Stacks Are Running"
+pei "docker compose ls | grep -E 'NAME|spring'"
 
-print_header "Step 2: Build Bitnami Stack"
-pei "docker compose -f docker-compose.bsi.yml up -d --build"
+print_header "Step 2: Scan DockerHub Stack Images"
+pei "syft spring-uber-app-dhb:latest -o json > ${DHB_APP_SBOM}"
+grype sbom:${DHB_APP_SBOM} -o json > $DHB_APP_SCAN
+pei "grype sbom:${DHB_APP_SBOM}"
+pei "syft postgres:16 -o json > ${DHB_DB_SBOM}"
+grype sbom:${DHB_DB_SBOM} -o json > $DHB_DB_SCAN
+pei "grype sbom:${DHB_DB_SBOM}"
 
-print_header "Step 3: Verify Both Stacks Are Running"
-pei "docker compose ls"
+print_header "Step 3: Scan Bitnami Stack Images"
+pei "syft spring-uber-app-bsi:latest -o json > ${BSI_APP_SBOM}"
+grype sbom:${BSI_APP_SBOM} -o json > $BSI_APP_SCAN
+pei "grype sbom:${BSI_APP_SBOM}"
+pei "syft ${BSI_REGISTRY}/containers/photon-5/postgresql:16 -o json > ${BSI_DB_SBOM}"
+grype sbom:${BSI_DB_SBOM} -o json > $BSI_DB_SCAN
+pei "grype sbom:${BSI_DB_SBOM}"
 
-print_header "Step 4: Scan DockerHub Stack Images"
-pei "grype spring-uber-app-dhb:latest -o json > $DHB_APP_SCAN"
-pei "grype postgres:16 -o json > $DHB_DB_SCAN"
-
-print_header "Step 5: Scan Bitnami Stack Images"
-pei "grype spring-uber-app-bsi:latest -o json > $BSI_APP_SCAN"
-pei "grype us-east1-docker.pkg.dev/vmw-app-catalog/hosted-registry-e4c6ba6fd76/containers/photon-5/postgresql:16 -o json > $BSI_DB_SCAN"
-
-print_header "Step 6: Analyze Results"
+print_header "Step 4: Analyze Results"
 
 # Print the results table
 print_results_table
