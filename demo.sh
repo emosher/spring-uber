@@ -120,14 +120,13 @@ print_results_table() {
         "Dockerhub (DHB) App" "$dhb_app_crit" "$dhb_app_high" "$dhb_app_med" "$dhb_app_low" "$dhb_app_total"
     printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${NC} %6s ${PURPLE}║${NC}\n" \
         "Dockerhub Database" "$dhb_db_crit" "$dhb_db_high" "$dhb_db_med" "$dhb_db_low" "$dhb_db_total"
+    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${CYAN} %6s ${PURPLE}║${NC}\n" \
+        "Dockerhub TOTAL" "$dhb_crit_total" "$dhb_high_total" "$dhb_med_total" "$dhb_low_total" "$dhb_total"
     echo -e "${PURPLE}╠═══════════════════════╬════════════╬════════════╬════════════╬════════════╬════════╣${NC}"
     printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${NC} %6s ${PURPLE}║${NC}\n" \
         "BSI App" "$bsi_app_crit" "$bsi_app_high" "$bsi_app_med" "$bsi_app_low" "$bsi_app_total"
     printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${NC} %6s ${PURPLE}║${NC}\n" \
         "BSI Database" "$bsi_db_crit" "$bsi_db_high" "$bsi_db_med" "$bsi_db_low" "$bsi_db_total"
-    echo -e "${PURPLE}╠═══════════════════════╬════════════╬════════════╬════════════╬════════════╬════════╣${NC}"
-    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${CYAN} %6s ${PURPLE}║${NC}\n" \
-        "Dockerhub TOTAL" "$dhb_crit_total" "$dhb_high_total" "$dhb_med_total" "$dhb_low_total" "$dhb_total"
     printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${CYAN} %6s ${PURPLE}║${NC}\n" \
         "BSI TOTAL" "$bsi_crit_total" "$bsi_high_total" "$bsi_med_total" "$bsi_low_total" "$bsi_total"
     echo -e "${PURPLE}╠═══════════════════════╬════════════╬════════════╬════════════╬════════════╬════════╣${NC}"
@@ -192,6 +191,10 @@ wait
 
 print_header "Step 1: Verify Both Stacks Are Running"
 pei "docker compose ls | grep -E 'NAME|spring'"
+echo ""
+echo -e "${CYAN}Press Enter to scan DockerHub images"
+
+wait
 
 print_header "Step 2: Scan DockerHub Stack Images"
 pei "syft spring-uber-app-dhb:latest -o json > ${DHB_APP_SBOM}"
@@ -200,6 +203,10 @@ pei "grype sbom:${DHB_APP_SBOM}"
 pei "syft postgres:16 -o json > ${DHB_DB_SBOM}"
 grype sbom:${DHB_DB_SBOM} -o json > $DHB_DB_SCAN
 pei "grype sbom:${DHB_DB_SBOM}"
+echo ""
+echo -e "${CYAN}Press Enter to scan Bitnami images"
+
+wait
 
 print_header "Step 3: Scan Bitnami Stack Images"
 pei "syft spring-uber-app-bsi:latest -o json > ${BSI_APP_SBOM}"
@@ -208,6 +215,10 @@ pei "grype sbom:${BSI_APP_SBOM}"
 pei "syft ${BSI_REGISTRY}/containers/photon-5/postgresql:16 -o json > ${BSI_DB_SBOM}"
 grype sbom:${BSI_DB_SBOM} -o json > $BSI_DB_SCAN
 pei "grype sbom:${BSI_DB_SBOM}"
+echo ""
+echo -e "${CYAN}Press Enter to analyze scan results"
+
+wait
 
 print_header "Step 4: Analyze Results"
 
