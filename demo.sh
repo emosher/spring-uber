@@ -186,6 +186,7 @@ echo "  1. Verify both DockerHub and Bitnami stacks are running"
 echo "  2. Scan all images, app and database, for vulnerabilities using Syft & Grype"
 echo "  3. Compare the results"
 echo ""
+echo -e "${CYAN}Press Enter to start the demo"
 
 wait
 
