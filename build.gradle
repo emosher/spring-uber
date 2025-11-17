@@ -40,3 +40,16 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+task listRepos {
+    doLast {
+        println "Repositories:"
+        project.repositories.each {
+            if (it instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository) {
+                println "  Name: ${it.name}; url: ${it.url}"
+            } else {
+                println "  Name: ${it.name}; type: ${it.class.simpleName}"
+            }
+        }
+    }
+}
