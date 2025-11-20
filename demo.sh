@@ -35,8 +35,8 @@ BSI_APP_SCAN="/tmp/bsi-app-scan.json"
 BSI_DB_SCAN="/tmp/bsi-db-scan.json"
 
 cleanup() {
-    docker compose -f docker-compose.dhb.yml down -v
-    docker compose -f docker-compose.bsi.yml down -v
+    pei "docker compose -f docker-compose.dhb.yml down -v"
+    pei "docker compose -f docker-compose.bsi.yml down -v"
     rm -f $DHB_APP_SBOM $DHB_DB_SBOM $BSI_APP_SBOM $BSI_DB_SBOM $DHB_APP_SCAN $DHB_DB_SCAN $BSI_APP_SCAN $BSI_DB_SCAN 
 }
 
@@ -63,9 +63,10 @@ extract_vuln_counts() {
     local medium=$(jq '[.matches[] | select(.vulnerability.severity == "Medium")] | length' "$scan_file")
     local low=$(jq '[.matches[] | select(.vulnerability.severity == "Low")] | length' "$scan_file")
     local negligible=$(jq '[.matches[] | select(.vulnerability.severity == "Negligible")] | length' "$scan_file")
+    local unknown=$(jq '[.matches[] | select(.vulnerability.severity == "Unknown")] | length' "$scan_file")
     local total=$(jq '.matches | length' "$scan_file")
     
-    echo "$critical $high $medium $low $negligible $total"
+    echo "$critical $high $medium $low $negligible $unknown $total"
 }
 
 # Print a section header
@@ -79,70 +80,71 @@ print_header() {
 
 # Print results table
 print_results_table() {
-    # Extract counts for each image
-    read dhb_app_crit dhb_app_high dhb_app_med dhb_app_low dhb_app_neg dhb_app_total <<< $(extract_vuln_counts "$DHB_APP_SCAN")
-    read dhb_db_crit dhb_db_high dhb_db_med dhb_db_low dhb_db_neg dhb_db_total <<< $(extract_vuln_counts "$DHB_DB_SCAN")
-    read bsi_app_crit bsi_app_high bsi_app_med bsi_app_low bsi_app_neg bsi_app_total <<< $(extract_vuln_counts "$BSI_APP_SCAN")
-    read bsi_db_crit bsi_db_high bsi_db_med bsi_db_low bsi_db_neg bsi_db_total <<< $(extract_vuln_counts "$BSI_DB_SCAN")
+    read dhb_app_crit dhb_app_high dhb_app_med dhb_app_low dhb_app_neg dhb_app_unk dhb_app_total <<< $(extract_vuln_counts "$DHB_APP_SCAN")
+    read dhb_db_crit dhb_db_high dhb_db_med dhb_db_low dhb_db_neg dhb_app_unk dhb_db_total <<< $(extract_vuln_counts "$DHB_DB_SCAN")
+    read bsi_app_crit bsi_app_high bsi_app_med bsi_app_low bsi_app_neg bsi_app_unk bsi_app_total <<< $(extract_vuln_counts "$BSI_APP_SCAN")
+    read bsi_db_crit bsi_db_high bsi_db_med bsi_db_low bsi_db_neg bsi_db_unk bsi_db_total <<< $(extract_vuln_counts "$BSI_DB_SCAN")
     
     # Calculate totals
     dhb_total=$((dhb_app_total + dhb_db_total))
     bsi_total=$((bsi_app_total + bsi_db_total))
     difference=$((dhb_total - bsi_total))
     
+    # Calculate totals by severity (including Negligible/Other)
     dhb_crit_total=$((dhb_app_crit + dhb_db_crit))
     dhb_high_total=$((dhb_app_high + dhb_db_high))
     dhb_med_total=$((dhb_app_med + dhb_db_med))
     dhb_low_total=$((dhb_app_low + dhb_db_low))
-    dhb_neg_total=$((dhb_app_neg + dhb_db_neg))
+    dhb_other_total=$((dhb_app_neg + dhb_db_neg + dhb_app_unk + dhb_db_unk)) # Combining Negligible and Unknown as 'Other'
     
     bsi_crit_total=$((bsi_app_crit + bsi_db_crit))
     bsi_high_total=$((bsi_app_high + bsi_db_high))
     bsi_med_total=$((bsi_app_med + bsi_db_med))
     bsi_low_total=$((bsi_app_low + bsi_db_low))
-    bsi_neg_total=$((bsi_app_neg + bsi_db_neg))
-    
+    bsi_other_total=$((bsi_app_neg + bsi_db_neg + bsi_app_unk + bsi_db_unk)) # Combining Negligible and Unknown as 'Other'
+
+    # Calculate differences by severity
     diff_crit=$((dhb_crit_total - bsi_crit_total))
     diff_high=$((dhb_high_total - bsi_high_total))
     diff_med=$((dhb_med_total - bsi_med_total))
     diff_low=$((dhb_low_total - bsi_low_total))
-    diff_neg=$((dhb_neg_total - bsi_neg_total))
+    diff_other=$((dhb_other_total - bsi_other_total)) 
     
     print_header "VULNERABILITY SCAN RESULTS"
     
     # Print detailed table
-    echo -e "${PURPLE}╔════════════════════════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${PURPLE}║                          DETAILED VULNERABILITY BREAKDOWN                          ║${NC}"
-    echo -e "${PURPLE}╠═══════════════════════╦════════════╦════════════╦════════════╦════════════╦════════╣${NC}"
-    echo -e "${PURPLE}║${NC} Image                 ${PURPLE}║${NC} Critical   ${PURPLE}║${NC} High       ${PURPLE}║${NC} Medium     ${PURPLE}║${NC} Low        ${PURPLE}║${NC} Total  ${PURPLE}║${NC}"
-    echo -e "${PURPLE}╠═══════════════════════╬════════════╬════════════╬════════════╬════════════╬════════╣${NC}"
-    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${NC} %6s ${PURPLE}║${NC}\n" \
-        "Dockerhub (DHB) App" "$dhb_app_crit" "$dhb_app_high" "$dhb_app_med" "$dhb_app_low" "$dhb_app_total"
-    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${NC} %6s ${PURPLE}║${NC}\n" \
-        "Dockerhub Database" "$dhb_db_crit" "$dhb_db_high" "$dhb_db_med" "$dhb_db_low" "$dhb_db_total"
-    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${CYAN} %6s ${PURPLE}║${NC}\n" \
-        "Dockerhub TOTAL" "$dhb_crit_total" "$dhb_high_total" "$dhb_med_total" "$dhb_low_total" "$dhb_total"
-    echo -e "${PURPLE}╠═══════════════════════╬════════════╬════════════╬════════════╬════════════╬════════╣${NC}"
-    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${NC} %6s ${PURPLE}║${NC}\n" \
-        "BSI App" "$bsi_app_crit" "$bsi_app_high" "$bsi_app_med" "$bsi_app_low" "$bsi_app_total"
-    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${NC} %6s ${PURPLE}║${NC}\n" \
-        "BSI Database" "$bsi_db_crit" "$bsi_db_high" "$bsi_db_med" "$bsi_db_low" "$bsi_db_total"
-    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${CYAN} %6s ${PURPLE}║${NC}\n" \
-        "BSI TOTAL" "$bsi_crit_total" "$bsi_high_total" "$bsi_med_total" "$bsi_low_total" "$bsi_total"
-    echo -e "${PURPLE}╠═══════════════════════╬════════════╬════════════╬════════════╬════════════╬════════╣${NC}"
+    echo -e "${PURPLE}╔════════════════════════════════════════════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${PURPLE}║                                DETAILED VULNERABILITY BREAKDOWN                                  ║${NC}"
+    echo -e "${PURPLE}╠═══════════════════════╦════════════╦════════════╦════════════╦════════════╦════════════╦════════╣${NC}"
+    echo -e "${PURPLE}║${NC} Image                 ${PURPLE}║${NC} Critical   ${PURPLE}║${NC} High       ${PURPLE}║${NC} Medium     ${PURPLE}║${NC} Low        ${PURPLE}║${NC} Other      ${PURPLE}║${NC} Total  ${PURPLE}║${NC}"
+    echo -e "${PURPLE}╠═══════════════════════╬════════════╬════════════╬════════════╬════════════╬════════════╬════════╣${NC}"
+    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${MAGENTA} %10s ${PURPLE}║${NC} %6s ${PURPLE}║${NC}\n" \
+        "Dockerhub (DHB) App" "$dhb_app_crit" "$dhb_app_high" "$dhb_app_med" "$dhb_app_low" "$dhb_app_neg" "$dhb_app_total"
+    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${MAGENTA} %10s ${PURPLE}║${NC} %6s ${PURPLE}║${NC}\n" \
+        "Dockerhub Database" "$dhb_db_crit" "$dhb_db_high" "$dhb_db_med" "$dhb_db_low" "$dhb_db_neg" "$dhb_db_total"
+    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${MAGENTA} %10s ${PURPLE}║${CYAN} %6s ${PURPLE}║${NC}\n" \
+        "Dockerhub TOTAL" "$dhb_crit_total" "$dhb_high_total" "$dhb_med_total" "$dhb_low_total" "$dhb_other_total" "$dhb_total"
+    echo -e "${PURPLE}╠═══════════════════════╬════════════╬════════════╬════════════╬════════════╬════════════╬════════╣${NC}"
+    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${MAGENTA} %10s ${PURPLE}║${NC} %6s ${PURPLE}║${NC}\n" \
+        "BSI App" "$bsi_app_crit" "$bsi_app_high" "$bsi_app_med" "$bsi_app_low" "$bsi_app_neg" "$bsi_app_total"
+    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${MAGENTA} %10s ${PURPLE}║${NC} %6s ${PURPLE}║${NC}\n" \
+        "BSI Database" "$bsi_db_crit" "$bsi_db_high" "$bsi_db_med" "$bsi_db_low" "$bsi_db_neg" "$bsi_db_total"
+    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${MAGENTA} %10s ${PURPLE}║${CYAN} %6s ${PURPLE}║${NC}\n" \
+        "BSI TOTAL" "$bsi_crit_total" "$bsi_high_total" "$bsi_med_total" "$bsi_low_total" "$bsi_other_total" "$bsi_total"
+    echo -e "${PURPLE}╠═══════════════════════╬════════════╬════════════╬════════════╬════════════╬════════════╬════════╣${NC}"
     
     # Color the difference based on whether it's positive or negative
     if [ $difference -gt 0 ]; then
         diff_color=$GREEN
-        diff_symbol="↓"
+        diff_symbol="↓" # Fewer/Better
     else
         diff_color=$RED
-        diff_symbol="↑"
+        diff_symbol="↑" # More/Worse
     fi
     
-    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${diff_color} %6s ${PURPLE}║${NC}\n" \
-        "DIFFERENCE (DHB-BSI)" "$diff_crit" "$diff_high" "$diff_med" "$diff_low" "$difference"
-    echo -e "${PURPLE}╚═══════════════════════╩════════════╩════════════╩════════════╩════════════╩════════╝${NC}"
+    printf "${PURPLE}║${NC} %-21s ${PURPLE}║${RED} %10s ${PURPLE}║${YELLOW} %10s ${PURPLE}║${BLUE} %10s ${PURPLE}║${GREEN} %10s ${PURPLE}║${MAGENTA} %10s ${PURPLE}║${diff_color} %6s ${PURPLE}║${NC}\n" \
+        "DIFFERENCE (DHB-BSI)" "$diff_crit" "$diff_high" "$diff_med" "$diff_low" "$diff_other" "$difference"
+    echo -e "${PURPLE}╚═══════════════════════╩════════════╩════════════╩════════════╩════════════╩════════════╩════════╝${NC}"
     
     echo ""
     echo -e "${PURPLE}╔════════════════════════════════════════════════════════════════════════════════════╗${NC}"
@@ -150,15 +152,21 @@ print_results_table() {
     echo -e "${PURPLE}╚════════════════════════════════════════════════════════════════════════════════════╝${NC}"
     
     if [ $difference -gt 0 ]; then
-        echo -e "${GREEN}✓ Bitnami images have ${difference} FEWER vulnerabilities than DockerHub images!${NC}"
+        echo -e "${GREEN}✓ Bitnami images have ${difference} FEWER total vulnerabilities than DockerHub images!${NC}"
         echo -e "${GREEN}  ${diff_symbol} Critical: ${diff_crit} fewer${NC}"
         echo -e "${GREEN}  ${diff_symbol} High: ${diff_high} fewer${NC}"
         echo -e "${GREEN}  ${diff_symbol} Medium: ${diff_med} fewer${NC}"
         echo -e "${GREEN}  ${diff_symbol} Low: ${diff_low} fewer${NC}"
+        echo -e "${GREEN}  ${diff_symbol} Other (Negligible/Unknown): ${diff_other} fewer${NC}" 
     elif [ $difference -lt 0 ]; then
-        echo -e "${RED}✗ Bitnami images have ${difference#-} MORE vulnerabilities than DockerHub images!${NC}"
+        echo -e "${RED}✗ Bitnami images have ${difference#-} MORE total vulnerabilities than DockerHub images!${NC}"
+        echo -e "${RED}  ${diff_symbol} Critical: ${diff_crit} more${NC}"
+        echo -e "${RED}  ${diff_symbol} High: ${diff_high} more${NC}"
+        echo -e "${RED}  ${diff_symbol} Medium: ${diff_med} more${NC}"
+        echo -e "${RED}  ${diff_symbol} Low: ${diff_low} more${NC}"
+        echo -e "${RED}  ${diff_symbol} Other (Negligible/Unknown): ${diff_other} more${NC}"
     else
-        echo -e "${YELLOW}= Both stacks have the same number of vulnerabilities${NC}"
+        echo -e "${YELLOW}= Both stacks have the same number of total vulnerabilities${NC}"
     fi
     
     echo ""
