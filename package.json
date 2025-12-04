@@ -1,0 +1,16 @@
+{
+  "name": "spring-uber",
+  "version": "0.0.1",
+  "description": "Spring Uber - Uber pickup data visualization",
+  "private": true,
+  "scripts": {
+    "postinstall": "echo 'Frontend dependencies installed successfully'"
+  },
+  "dependencies": {
+    "apexcharts": "^5.3.6"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

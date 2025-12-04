@@ -63,6 +63,12 @@ Thumbs.db
 
 # Node modules (if frontend is included)
 node_modules/
+package-lock.json
+.node/
+.npm/
+
+# Generated frontend dependencies
+src/main/resources/static/js/vendor/apexcharts.min.js
 
 # Coverage reports
 /coverage/
