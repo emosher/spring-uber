@@ -2,7 +2,7 @@
 FROM eclipse-temurin:21-jdk-jammy AS builder
 WORKDIR /app
 COPY . .
-RUN ./gradlew bootJar
+RUN ./gradlew clean build
 
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app

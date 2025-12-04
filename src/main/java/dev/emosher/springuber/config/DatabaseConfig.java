@@ -1,6 +1,7 @@
 package dev.emosher.springuber.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -11,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 @Configuration
+@ConditionalOnProperty(name = "spring.datasource.driver-class-name", havingValue = "org.postgresql.Driver")
 public class DatabaseConfig {
     
     @Value("${spring.datasource.username}")

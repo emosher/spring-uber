@@ -7,7 +7,7 @@ vendir sync
 . vendir/demo-magic/demo-magic.sh -n
 
 # Configure demo-magic
-TYPE_SPEED=20
+TYPE_SPEED=50
 NO_WAIT=false
 
 # Convenience variable if using a different registry
