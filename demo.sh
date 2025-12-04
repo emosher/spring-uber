@@ -182,9 +182,11 @@ cleanup
 clear
 
 print_header "Pre-demo step: Build DockerHub Stack"
+pei "docker compose -f docker-compose.dhb.yml pull"
 pei "docker compose -f docker-compose.dhb.yml up -d --build"
 
 print_header "Pre-demo step: Build Bitnami Stack"
+pei "docker compose -f docker-compose.bsi.yml pull"
 pei "docker compose -f docker-compose.bsi.yml up -d --build"
 clear
 
