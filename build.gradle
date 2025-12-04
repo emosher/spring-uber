@@ -36,6 +36,10 @@ dependencies {
     implementation 'org.postgresql:postgresql'
     implementation 'com.opencsv:opencsv:5.7.1'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	// Force secure versions to fix CVE-2025-48734 and CVE-2025-48924
+	implementation 'commons-beanutils:commons-beanutils:1.11.0'
+	implementation 'org.apache.commons:commons-lang3:3.18.0'
 }
 
 tasks.named('test') {
