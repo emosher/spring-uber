@@ -113,8 +113,8 @@ print_results_table() {
     print_header "VULNERABILITY SCAN RESULTS"
     
     # Print detailed table
-    echo -e "${PURPLE}╔════════════════════════════════════════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${PURPLE}║                                DETAILED VULNERABILITY BREAKDOWN                                  ║${NC}"
+    echo -e "${PURPLE}╔═════════════════════════════════════════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${PURPLE}║                                DETAILED VULNERABILITY BREAKDOWN                                 ║${NC}"
     echo -e "${PURPLE}╠═══════════════════════╦════════════╦════════════╦════════════╦════════════╦════════════╦════════╣${NC}"
     echo -e "${PURPLE}║${NC} Image                 ${PURPLE}║${NC} Critical   ${PURPLE}║${NC} High       ${PURPLE}║${NC} Medium     ${PURPLE}║${NC} Low        ${PURPLE}║${NC} Other      ${PURPLE}║${NC} Total  ${PURPLE}║${NC}"
     echo -e "${PURPLE}╠═══════════════════════╬════════════╬════════════╬════════════╬════════════╬════════════╬════════╣${NC}"
@@ -182,11 +182,11 @@ cleanup
 clear
 
 print_header "Pre-demo step: Build DockerHub Stack"
-pei "docker compose -f docker-compose.dhb.yml pull"
+pei "docker compose -f docker-compose.dhb.yml pull db-dhb"
 pei "docker compose -f docker-compose.dhb.yml up -d --build"
 
 print_header "Pre-demo step: Build Bitnami Stack"
-pei "docker compose -f docker-compose.bsi.yml pull"
+pei "docker compose -f docker-compose.bsi.yml pull db-bsi"
 pei "docker compose -f docker-compose.bsi.yml up -d --build"
 clear
 
